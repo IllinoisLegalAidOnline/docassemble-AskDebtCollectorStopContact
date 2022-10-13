@@ -1,0 +1,459 @@
+metadata:
+  title: Ask debt collector to stop contact
+  short title: Ask debt collector to stop contact
+  comment: This program creates a letter asking a debt collector to stop contacting you.
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ILAO:ilao-interview-framework.yml
+  - docassemble.ILAO:shared-basic-questions.yml
+---
+objects:
+  - user: ALIndividual
+  - debt_collector: ALIndividual
+---
+# Road map
+sections:
+  - section_intro: Start
+  - section_about_you: About you
+  - section_debt: Debt collector info
+  - section_send_date: Letter date
+  - section_download: Download
+---
+# interview order block
+mandatory: True
+code: |
+  ilao_easy_form_title = "Ask debt collector to stop contact"
+  ilao_easy_form_url = "https://www.illinoislegalaid.org/legal-information/request-collection-agency-stop-contacting"
+  nav.set_section('section_intro')
+  sees_nav_bar
+  set_progress(5)
+  how_to_use
+  if accept == False:
+    not_legal_advice
+  #nav.set_section('section_qualify')
+  if debt_collector_contact == False:
+    not_qualified_no_contact
+  if able_to_pay == True:
+    not_qualified_can_pay
+  qualified
+  set_progress(20)
+  nav.set_section('section_about_you')
+  user.name.first
+  set_progress(35)
+  user.address.address
+  set_progress(50)
+  nav.set_section('section_debt')
+  debt_collector.name.first
+  set_progress(65)
+  debt_collector.address.address
+  set_progress(75)
+  account_number
+  set_progress(85)
+  nav.set_section('section_send_date')
+  letter_date
+  set_progress(95)
+  nav.set_section('section_preview')
+  #preview_form
+  set_progress(100)
+  nav.set_section('section_download')
+  #get_docs
+  get_docs_screen
+  #user.email
+  #if email_sent_ok == True:
+    #ending_screen
+---
+id: welcome
+question: |
+  Ask debt collector to stop contact
+subquestion: |
+  Welcome to Illinois Legal Aid Online's **Ask debt collector to stop contact** Easy Form.
+
+  This program creates a letter to ask a debt collector to stop contacting you.
+
+  The Fair Debt Collection Practices Act (FDCPA) gives you the right to stop a debt collector or collection agency from contacting you.
+
+  Even if a debt collector stops contacting you, the debt is still there. The debt collector can sue you in court to collect the debt.
+  
+  Learn more about [debt collection and your rights](https://www.illinoislegalaid.org/legal-information/my-rights-under-fair-debt-collection-practices-act).
+field: sees_nav_bar
+---
+id: instructions
+continue button field: how_to_use
+question: |
+  Instructions
+subquestion: |
+  To use this program you will need:
+
+  * The debt collector name and address, and
+  * Your account number used by the debt collector.
+
+  Set aside :stopwatch: 5 minutes to finish this program. You can login and save your work to return to later. 
+
+  Click on **{green words :question-circle:}** to learn what they mean. Click **"Help"** to learn more about a question.
+
+  After you download your letter, you must mail it to the debt collector.
+help: |
+  This is an example help page. Click **"Back to question"** to go to the previous screen and continue the interview.
+---
+id: accept terms
+question: |
+  Not legal advice
+subquestion: |
+  NOTE: This program does not provide legal advice. It does not take the place of advice from a lawyer.
+
+  Using this program does not create an attorney-client relationship between you and Illinois Legal Aid Online or its employees.
+
+  Do you understand and accept the [terms of use](https://www.illinoislegalaid.org/about/terms-of-use)? 
+field: accept
+choices:
+  - I understand and accept the terms of use.: True
+  - I do not accept the terms of use.: False
+---
+id: contact by debt collector
+question: |
+  Have you been contacted by a debt collector?
+subquestion: |
+  The debt collector could be a collection agency or a collections lawyer. They could contact you by:
+  
+  * Phone, 
+  * Letters or postcards,
+  * Email, or
+  * Text messages.
+yesno: debt_collector_contact
+---
+id: unable to pay
+question: |
+  Are you able to pay the debt at this time?
+subquestion: |
+  You might have essential expenses like food, housing, medicine, and utilities that make it impossible to pay your debt right now.
+  
+  You may be able to pay the debt over time instead of sending a letter to stop contact. Learn about [coming up with a payment plan](https://www.illinoislegalaid.org/node/31416).
+yesno: able_to_pay
+---
+id: not legal advice
+event: not_legal_advice
+question: |
+  Sorry
+subquestion: |
+  You cannot continue unless you understand this program does not give legal advice and accept the [terms of use](https://www.illinoislegalaid.org/about/terms-of-use).
+
+  This program will only help you complete the legal documents you want. By providing this program we are not giving you legal advice. Your use of this program does not mean that Illinois Legal Aid Online will provide you with a lawyer or with any individual legal help.
+
+  If you have questions or concerns about your legal problem and want legal advice you should talk to a lawyer. If you would like help finding free or low-cost legal services in your area, use [Get Legal Help](https://www.illinoislegalaid.org/get-legal-help).
+
+buttons:
+  - Exit: exit
+  - Restart: restart
+---
+id: not qualified no contact
+event: not_qualified_no_contact
+question: |
+  Sorry
+subquestion: |
+  You must have been contacted by a debt collector to use this program.
+buttons:
+  - Exit: exit
+  - Restart: restart
+---
+id: not qualified can pay debt
+event: not_qualified_can_pay
+question: |
+  Sorry
+subquestion: |
+  You must not be able to pay your debt to use this program.
+buttons:
+  - Exit: exit
+  - Restart: restart
+---
+id: qualified
+continue button field: qualified
+question: |
+  Good news!
+subquestion: |
+  You are qualified to use this program.
+
+  The next questions will ask for information that will go into your letter.
+---
+id: debt collector name
+question: |
+  What is the name of the company that is trying to collect a debt?
+fields:
+  - Name of debt collector : debt_collector.name.first
+---
+id: debt collector address
+question: |
+  What is ${ debt_collector.possessive('address') }?
+fields:
+  - Street address: debt_collector.address.address
+    address autocomplete: True
+  - Address line 2: debt_collector.address.unit
+    required: False
+  - City: debt_collector.address.city
+  - State: debt_collector.address.state
+    code: |
+      states_list()   
+    default: IL   
+  - ZIP code: debt_collector.address.zip
+---
+id: account number
+question: |
+  What is your account number?
+subquestion: |
+  The account number could contain letters, numbers, or symbols.
+help: |
+  Your account number should be listed on the collection notice or demand you received from ${ debt_collector.name.first }. It might be called your file or customer number.  
+fields:
+  - Account number : account_number
+---
+id: mail letter date
+question: |
+  When will you mail your letter?
+fields:
+  - Date : letter_date
+    datatype: date
+    default: ${ today().format("yyyy-MM-dd") }
+    min: ${ today().format("yyyy-MM-dd") }
+---
+#id: preview
+#continue button field: preview_form
+#reconsider:
+#  - letter
+#question: |
+#  Preview
+#subquestion: |
+#  Great job! Your forms are almost ready.
+#
+#  Click the picture of your forms to preview in a new window.
+#  
+#  You can click **"Back"** to make changes, or click a **{section :question-circle:}** to edit your answers.
+#  
+#  ${ pdf_concatenate(whats_next, letter, filename="stop_debt_collector_contact.pdf") }
+#${ pdf_concatenate(form['preview'], filename="stop_debt_collector_contact.pdf") }
+---
+#id: get docs
+#event: get_docs
+#reconsider:
+#  - form['final']
+#question: |
+#  Download
+#subquestion: |
+#  After you download your letter:
+#
+#  1. Sign it,
+#  2. Make a copy, and 
+#  3. Send it by **{Certified Mail :question-circle:}**.
+#
+#  Click **Download PDF** or **Download DOCX** to get your forms. You can also email them by entering an E-mail address below.
+#  
+#  **[${fa_icon("print", color="#0079d0", size="sm")} Download PDF](${ form['final'].url_for(attachment=True) })** (for printing)
+#  
+#  **[${fa_icon("pencil-alt", color="#0079d0", size="sm")} Download DOCX](${ form['final'].docx.url_for(attachment=True) })** (for editing)
+#
+#  **[Download all your forms](${ zip_file( whats_next, form['final'], filename="Stop contact files.zip").url_for(attachment=True) })** in a **{.zip file :question-circle:}**     
+#
+#attachment code: form['final']
+#manual attachment list: true
+#buttons:
+#  - Delete answers and restart: restart
+---
+attachment:
+  name: Stop contact letter
+  variable name: form[i]
+  filename: stop_contact_letter
+  docx template file: stop_debt_collector_contact.docx
+  valid formats:
+    - pdf
+    - docx
+---
+id: get docs screen
+event: get_docs_screen
+#continue button field: get_docs_screen
+#reconsider: letter
+question: |
+  Download
+subquestion: |
+  Your forms are ready. View and download your forms below. Click **Make changes** to fix any mistakes.
+
+  After you get your letter:
+
+  1. Sign it,
+  2. Make a copy, and 
+  3. Send it by **{Certified Mail :question-circle:}**.
+
+  ${ action_button_html(url_action('review_answers'), label=':edit: Make changes', color='success', size="md") }
+
+  ${ al_user_bundle.download_list_html() }
+
+  &nbsp;
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+  Thank you for using ILAO Easy Forms!
+under: |
+  % if not user_logged_in():
+  [${fa_icon("sign-in-alt", color="#0079d0", size="sm")} Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) an ILAO Easy Form account to save your progress (optional).
+  % endif 
+
+  &nbsp;
+  ${ action_button_html(interview_url(i="docassemble.ILAO:feedback.yml", easy_form_interview=ilao_easy_form_url, easy_form_title=ilao_easy_form_title, easy_form_page=user_info().question_id, easy_form_variable=user_info().variable, local=False,reset=1), label=':comment: Was this program helpful?', color="#181c36", size="md", new_window=True) }
+
+
+#  Download your forms
+#  
+#  ${ docs_list([ { "label": 'Instructions', "doc": whats_next } , { "label": 'Letter to debt collector', "doc": letter } ]) } 
+#
+#css: ${ docs_list_css() }
+#field: get_docs_screen
+#buttons:
+#  - ${fa_icon("envelope", color="#0079d0", size="sm")} Email your forms: continue
+---
+objects:
+  - instructions: ALDocument.using(title="Instructions", filename="instructions", enabled=True, has_addendum=False)
+  - letter: ALDocument.using(title="Letter", filename="stop_contact_letter", enabled=True, has_addendum=False)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[instructions, letter], filename="stop_contact_letter.pdf", title="Download all forms")
+  - al_court_bundle: ALDocumentBundle.using(elements=[instructions, letter], filename="stop_contact_letter.pdf", title="Letter")
+---
+attachment:
+  name: Instructions
+  variable name: instructions[i]
+  filename: instructions_stop_debt_collector_contact
+  docx template file: stop_debt_collector_contact_instructions.docx
+---
+attachment:
+  name: Stop contact letter
+  variable name: letter[i]
+  filename: stop_debt_collector_contact
+  docx template file: stop_debt_collector_contact.docx
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+  Stop contact letter
+content: |
+  Your forms are attached.
+  
+  Thanks for using ILAO Easy Forms!
+  
+  [Illinois Legal Aid Online](https://www.illinoislegalaid.org)
+---
+id: email forms
+question: |
+  Email your forms
+subquestion: |
+  Where should we email your forms?
+  
+  This program does not deliver your letter to the debt collector. You need to mail it yourself.
+fields:
+  - Email address: user.email
+    datatype: email
+continue button label: Send
+---
+template: forms_email
+subject: |
+  Ask debt collector to stop contact letter
+content: |
+  Your forms are attached.
+  
+  Thanks for using ILAO Easy Forms!
+  
+  [Illinois Legal Aid Online](https://www.illinoislegalaid.org)
+---
+#code: |
+#  email_sent_ok = send_email(to=user.email, template=forms_email, attachments=[letter, whats_next])
+---
+id: email ending screen
+event: ending_screen
+question: |
+  Email sent
+subquestion: |
+  Your forms were sent to **${ user.email }**.
+  
+  If you don’t see an email from no-reply@illinoislegalaid.org, check your spam folder.
+  
+  This program does not deliver your letter to the debt collector. You need to mail it yourself.
+  
+  Thank you for using ILAO Easy Forms!
+buttons:
+  - Delete answers and restart: restart
+  - Exit: exit
+############### Review pages
+---
+---
+id: ask debt collector to stop contact review screen
+event: review_answers
+question: |
+  Review screen
+subquestion: |
+  Edit your answers below.
+review:
+  - Edit: user.name.first
+    button: |
+      **Your name:**
+      ${user.name.full(middle="full")}
+  - Edit: user.address.address
+    button: |
+      **Your address:**
+      ${user.address.on_one_line(bare=True)}
+  - Edit: debt_collector.name.first
+    button: |
+      **Debt collector:**
+      ${debt_collector.name}
+  - Edit: debt_collector.address.address
+    button: |
+      **${debt_collector.name}'s address:**
+      ${debt_collector.address.on_one_line(bare=True)}
+  - Edit: account_number
+    button: |
+      **Your account number:**
+      ${account_number}
+  - Edit: letter_date
+    button: |
+      **Letter date:**
+      ${format_date(letter_date)}
+---
+id: section_about_you
+event: section_about_you
+question: |
+  About you
+subquestion: |
+  Edit your answers below.
+review:
+  - Edit: user.name.first
+    button: |
+      **Your name:**
+      ${user.name.full(middle="full")}
+  - Edit: user.address.address
+    button: |
+      **Your address:**
+      ${user.address.on_one_line(bare=True)}
+---
+id: section_debt
+event: section_debt
+question: |
+  Debt collector info
+subquestion: |
+  Edit your answers below.
+review:
+  - Edit: debt_collector.name.first
+    button: |
+      **Debt collector:**
+      ${debt_collector.name}
+  - Edit: debt_collector.address.address
+    button: |
+      **${debt_collector.name}'s address:**
+      ${debt_collector.address.on_one_line(bare=True)}
+---
+id: section_send_date
+event: section_send_date
+question: |
+  Letter date
+subquestion: |
+  Edit your answers below.
+review:
+  - Edit: letter_date
+    button: |
+      **Letter date:**
+      ${format_date(letter_date)}
