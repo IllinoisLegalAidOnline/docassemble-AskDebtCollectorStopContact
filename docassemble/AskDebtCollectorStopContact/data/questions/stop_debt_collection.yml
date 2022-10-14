@@ -58,8 +58,6 @@ code: |
   set_progress(85)
   nav.set_section('section_send_date')
   letter_date
-  set_progress(95)
-  nav.set_section('section_preview')
   set_progress(100)
   nav.set_section('section_download')
   get_docs_screen
@@ -359,7 +357,7 @@ buttons:
 
 ############### Review pages
 ---
-id: ask debt collector to stop contact review screen
+id: review screen
 event: review_answers
 question: |
   Review screen
@@ -391,7 +389,7 @@ review:
       **Letter date:**
       ${format_date(letter_date)}
 ---
-id: section_about_you
+id: about you review screen
 event: section_about_you
 question: |
   About you
@@ -407,7 +405,7 @@ review:
       **Your address:**
       ${user.address.on_one_line(bare=True)}
 ---
-id: section_debt
+id: debt collector info review screen
 event: section_debt
 question: |
   Debt collector info
@@ -423,7 +421,7 @@ review:
       **${debt_collector.name}'s address:**
       ${debt_collector.address.on_one_line(bare=True)}
 ---
-id: section_send_date
+id: letter date review screen
 event: section_send_date
 question: |
   Letter date
