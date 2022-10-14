@@ -314,47 +314,6 @@ content: |
   
   [Illinois Legal Aid Online](https://www.illinoislegalaid.org)
 ---
-id: email forms
-question: |
-  Email your forms
-subquestion: |
-  Where should we email your forms?
-  
-  This program does not deliver your letter to the debt collector. You need to mail it yourself.
-fields:
-  - Email address: user.email
-    datatype: email
-continue button label: Send
----
-template: forms_email
-subject: |
-  Ask debt collector to stop contact letter
-content: |
-  Your forms are attached.
-  
-  Thanks for using ILAO Easy Forms!
-  
-  [Illinois Legal Aid Online](https://www.illinoislegalaid.org)
----
-#code: |
-#  email_sent_ok = send_email(to=user.email, template=forms_email, attachments=[letter, whats_next])
----
-id: email ending screen
-event: ending_screen
-question: |
-  Email sent
-subquestion: |
-  Your forms were sent to **${ user.email }**.
-  
-  If you don’t see an email from no-reply@illinoislegalaid.org, check your spam folder.
-  
-  This program does not deliver your letter to the debt collector. You need to mail it yourself.
-  
-  Thank you for using ILAO Easy Forms!
-buttons:
-  - Delete answers and restart: restart
-  - Exit: exit
-
 ############### Review pages
 ---
 id: review screen
