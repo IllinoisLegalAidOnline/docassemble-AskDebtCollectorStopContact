@@ -33,6 +33,7 @@ mandatory: True
 code: |
   nav.set_section('section_intro')
   sees_nav_bar
+  snapshot_start
   set_progress(5)
   how_to_use
   accept_terms
@@ -60,7 +61,37 @@ code: |
   letter_date
   set_progress(100)
   nav.set_section('section_download')
+  forms_assembling
+  snapshot_forms
   get_docs_screen
+---
+code: |
+  stuff_to_snapshot = {
+  	'start_time': str(current_datetime().format_datetime()),
+  	'started_interview': True, 
+  	}
+
+  try:
+    stuff_to_snapshot['ip_address'] = device(ip=True)
+  except:
+    pass
+
+  stuff_to_snapshot['zip'] = showifdef('user.address.zip')
+
+  stuff_to_snapshot['downloaded_forms'] = showifdef('forms_assembling')
+  
+  store_variables_snapshot(
+  	data=stuff_to_snapshot, persistent=True
+  	)
+  snapshot_interview_state = True
+---
+code: |
+  snapshot_interview_state
+  snapshot_start = True  
+---
+code: |
+  reconsider('snapshot_interview_state')
+  snapshot_forms = True
 ---
 id: welcome
 question: |
@@ -91,13 +122,13 @@ subquestion: |
 
   ${ collapse_template(help_example) }  
 
-  Click on **{green words}** to learn what they mean. Some questions have a question mark in a circle ${ fa_icon("question-circle", color_css="#0dcaf0" ) } that also gives help.
+  Click on **{green words}** to learn what they mean. Some pages have a question mark in a circle ${ fa_icon("question-circle", color_css="#0dcaf0" ) } that helps explain things.
 
   After you download your letter, you must mail it to the debt collector.
 ---
 template: help_example
 subject: |
-  **You can expand sections like this to show more information.**
+  **You can click sections like this to show more information.**
 content: |  
   This is an example of help. Click again to hide.
 ---
@@ -232,14 +263,16 @@ fields:
     default: ${ today().format("yyyy-MM-dd") }
     min: ${ today().format("yyyy-MM-dd") }
 ---
-attachment:
-  name: Stop contact letter
-  variable name: form[i]
-  filename: stop_contact_letter
-  docx template file: stop_debt_collector_contact.docx
-  valid formats:
-    - pdf
-    - docx
+id: forms assembling
+continue button field: forms_assembling
+question: |
+  Almost done
+subquestion: |
+  After you click **Next**, it may take a few moments to finish making your forms.
+  
+  ###### You do not need to refresh your screen. Hang in there!
+  
+  [NEWLINE]
 ---
 id: get docs screen
 event: get_docs_screen
@@ -274,14 +307,6 @@ under: |
   ${ action_button_html(interview_url(i="docassemble.ILAO:feedback.yml", easy_form_interview=ilao_easy_form_url, easy_form_title=ilao_easy_form_title, easy_form_page=user_info().question_id, easy_form_variable=user_info().variable, local=False,reset=1), label=':comment: Was this program helpful?', color="#181c36", size="md", new_window=True) }
 
 
-#  Download your forms
-#  
-#  ${ docs_list([ { "label": 'Instructions', "doc": whats_next } , { "label": 'Letter to debt collector', "doc": letter } ]) } 
-#
-#css: ${ docs_list_css() }
-#field: get_docs_screen
-#buttons:
-#  - ${fa_icon("envelope", color="#0079d0", size="sm")} Email your forms: continue
 ---
 objects:
   - instructions: ALDocument.using(title="Instructions", filename="instructions", enabled=True, has_addendum=False)
@@ -313,6 +338,15 @@ content: |
   Thanks for using ILAO Easy Forms!
   
   [Illinois Legal Aid Online](https://www.illinoislegalaid.org)
+---
+#attachment:
+#  name: Stop contact letter
+#  variable name: form[i]
+#  filename: stop_contact_letter
+#  docx template file: stop_debt_collector_contact.docx
+#  valid formats:
+#    - pdf
+#    - docx
 ---
 ############### Review pages
 ---
@@ -349,6 +383,7 @@ review:
       ${format_date(letter_date)}
 ---
 id: about you review screen
+section: About you
 event: section_about_you
 question: |
   About you
@@ -366,6 +401,7 @@ review:
 ---
 id: debt collector info review screen
 event: section_debt
+section: Debt collector info
 question: |
   Debt collector info
 subquestion: |
@@ -382,6 +418,7 @@ review:
 ---
 id: letter date review screen
 event: section_send_date
+section: Letter date
 question: |
   Letter date
 subquestion: |
