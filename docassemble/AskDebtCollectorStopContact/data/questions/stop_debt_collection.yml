@@ -1,6 +1,6 @@
 metadata:
   title: Ask debt collector to stop contact
-  short title: Ask debt collector to stop contact
+  short title: Debt collector stop contact
   comment: This program creates a letter asking a debt collector to stop contacting you.
   authors:
     - Matt Newsted
@@ -215,6 +215,24 @@ subquestion: |
   You are qualified to use this program.
 
   The next questions will ask for information that will go into your letter.
+---
+id: user name
+question: |
+  What is your name?
+subquestion: |
+    If you don't have a first name and a last name, you can enter your name in the field labeled **First** and leave the other fields blank.
+fields:
+  - First: user.name.first
+  - Middle: user.name.middle
+    required: False
+  - Last: user.name.last
+    required: False
+  - Suffix: user.name.suffix
+    help: |
+      Some names have a suffix after the last name, such as "Senior," "III," or "Jr." If your name does not have a suffix, you can leave this blank.
+    code: |
+      name_suffix()
+    required: False
 ---
 id: debt collector name
 question: |
